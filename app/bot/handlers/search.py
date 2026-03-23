@@ -19,14 +19,22 @@ async def cmd_search(message: Message) -> None:
     save_photo_id("search", result)
 
 
-@router.callback_query(F.data == "search")
+@router.callback_query(F.data.in_({"search", "new_search"}))
 async def on_search(callback: CallbackQuery) -> None:
-    result = await callback.message.edit_media(
-        media=InputMediaPhoto(
-            media=get_photo("search"),
+    if callback.message.photo:
+        result = await callback.message.edit_media(
+            media=InputMediaPhoto(
+                media=get_photo("search"),
+                caption=SEARCH_TEXT,
+            ),
+            reply_markup=search_keyboard(),
+        )
+    else:
+        await callback.message.delete()
+        result = await callback.message.answer_photo(
+            photo=get_photo("search"),
             caption=SEARCH_TEXT,
-        ),
-        reply_markup=search_keyboard(),
-    )
+            reply_markup=search_keyboard(),
+        )
     save_photo_id("search", result)
     await callback.answer()
