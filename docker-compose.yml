@@ -1,0 +1,33 @@
+services:
+  api:
+    build:
+      context: .
+      target: api
+    container_name: test-task-pesk-api
+    env_file: .env
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  bot:
+    build:
+      context: .
+      target: bot
+    container_name: test-task-pesk-bot
+    env_file: .env
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy

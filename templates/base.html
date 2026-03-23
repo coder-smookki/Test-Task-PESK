@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Тест задание — АО «ПЭСК»{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ static_base | default('/static') }}/style.css">
+</head>
+<body>
+
+  <div class="logo">
+    <div class="logo-dot"></div>
+    <span class="logo-text">АО «ПЭСК»</span>
+  </div>
+  <h1>Всё о городе<br>за <em>один запрос</em></h1>
+  <p class="tagline">Погода, валюта и расположение</p>
+
+  {% block content %}{% endblock %}
+
+  <div class="footer">Демо-интерфейс для FastAPI-бэкенда · АО «ПЭСК»</div>
+
+</body>
+</html>
