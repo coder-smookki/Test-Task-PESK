@@ -6,6 +6,11 @@ from app.api.dependencies import get_city_info_dep, CityInfoCallable
 router = APIRouter(prefix="/api/v1", tags=["city"])
 
 
+@router.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 @router.get("/city-info", response_model=CityInfoResponse)
 async def city_info(
     city: str = Query(..., description="Название города"),

@@ -1,30 +1,32 @@
 import asyncio
 import logging
 
-import uvicorn
-from aiogram import Dispatcher
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 
-from app.bot.create_bot import bot, dp
 from app.bot.handlers import start_router, help_router, search_router, city_query_router
 from app.bot.callbacks import refresh_router
 from app.bot.middlewares import ThrottlingMiddleware, LoggingMiddleware
 from app.bot.utils.logging import setup_logger
-from app.bot.utils.config import GREEN, RESET, BOLD, MAGENTA, DIM, CYAN, BLUE
-from app.api.router import router as api_router
+from app.bot.utils.config import GREEN, RESET, BOLD, MAGENTA, DIM, CYAN
 from app.services.http_client import close_client
+from app.config import settings
 
 logger = logging.getLogger("bot")
 
-app = FastAPI(title="Тест-Таск-ПЭСК", version="1.0.0")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-app.include_router(api_router)
+
+def create_bot() -> tuple[Bot, Dispatcher]:
+    bot = Bot(
+        token=settings.BOT_TOKEN,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    )
+    dp = Dispatcher()
+    return bot, dp
+
+
+bot, dp = create_bot()
+
 
 
 def register_handlers(dispatcher: Dispatcher) -> None:
@@ -33,7 +35,7 @@ def register_handlers(dispatcher: Dispatcher) -> None:
         ("help", help_router),
         ("search", search_router),
         ("city_query", city_query_router),
-        ("refresh", refresh_router),
+        ("ref>resh", refresh_router),
     ]
     for name, router in routers:
         dispatcher.include_router(router)
@@ -60,24 +62,11 @@ async def main() -> None:
     register_handlers(dp)
 
     me = await bot.me()
-    logger.info(
-        f"{CYAN}{BOLD}@{me.username}{RESET} "
-        f"{GREEN}стартовал!{RESET}"
-    )
-
-    config = uvicorn.Config(app, host="0.0.0.0", port=8000, log_level="info")
-    server = uvicorn.Server(config)
-    logger.info(
-        f"{BLUE}{BOLD}АПИ{RESET} "
-        f"{GREEN}запущен на http://127.0.0.1:8000{RESET}"
-    )
+    logger.info(f"{CYAN}{BOLD}@{me.username}{RESET} {GREEN}стартовал!{RESET}")
 
     try:
         await bot.delete_webhook(drop_pending_updates=True)
-        await asyncio.gather(
-            dp.start_polling(bot),
-            server.serve(),
-        )
+        await dp.start_polling(bot)
     finally:
         await close_client()
 
