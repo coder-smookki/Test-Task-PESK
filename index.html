@@ -127,7 +127,12 @@
     btn.innerHTML = '<span style="animation:pulse 1s infinite">···</span>';
 
     try {
-      const apiBase = (typeof window.API_BASE !== 'undefined') ? window.API_BASE : '';
+      const apiBase = (typeof window.API_BASE !== 'undefined' && window.API_BASE) ? window.API_BASE : null;
+      if (!apiBase) {
+        errEl.textContent = "API-сервер не настроен. Установите секрет API_BASE_URL в настройках репозитория.";
+        errEl.style.display = "block";
+        return;
+      }
       const res = await fetch(`${apiBase}/api/v1/city-info?city=${encodeURIComponent(city)}&amount=${amount}`);
 
       if (!res.ok) {
