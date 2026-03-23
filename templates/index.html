@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="search">
+    <div class="field">
+      <label>ГОРОД</label>
+      <input type="text" id="cityInput" placeholder="Берлин" autofocus>
+    </div>
+    <div class="sep"></div>
+    <div class="field field-amount">
+      <label>СУММА (₽)</label>
+      <input type="number" id="amountInput" value="5000" placeholder="5000">
+    </div>
+    <button class="btn" id="searchBtn" onclick="search()">Узнать</button>
+  </div>
+
+  <div id="error" class="error" style="display:none"></div>
+
+  <div class="results" id="results">
+    <div class="city-header">
+      <span class="city-name" id="rCity"></span>
+      <span class="city-country" id="rLabel"></span>
+    </div>
+    <div class="grid">
+      <div class="card" id="cardGeo">
+        <div class="card-icon">📍</div>
+        <div class="card-label">РАСПОЛОЖЕНИЕ</div>
+        <div class="card-value" id="rCountry"></div>
+        <div class="card-sub" id="rCoords"></div>
+      </div>
+      <div class="card" id="cardWeather">
+        <div class="card-icon" id="rIcon"></div>
+        <div class="card-label">ПОГОДА СЕЙЧАС</div>
+        <div><span class="big-num" id="rTemp"></span><span class="unit">°C</span></div>
+        <div class="card-sub" id="rDesc"></div>
+        <div class="card-divider"></div>
+        <div class="stats">
+          <div><div class="stat-label">ВЛАЖНОСТЬ</div><div class="stat-val" id="rHum"></div></div>
+          <div><div class="stat-label">ВЕТЕР</div><div class="stat-val" id="rWind"></div></div>
+          <div><div class="stat-label">ОЩУЩАЕТСЯ</div><div class="stat-val" id="rFeels"></div></div>
+        </div>
+      </div>
+      <div class="card currency-card" id="cardCur">
+        <div class="card-icon">💱</div>
+        <div class="card-label">КОНВЕРТАЦИЯ ВАЛЮТЫ</div>
+        <div id="rCur"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const fmt = (n, d = 2) => n.toLocaleString("ru-RU", {minimumFractionDigits: d, maximumFractionDigits: d});
+
+  const COUNTRIES = {
+    "AD":"Андорра","AE":"ОАЭ","AF":"Афганистан","AL":"Албания","AM":"Армения",
+    "AO":"Ангола","AR":"Аргентина","AT":"Австрия","AU":"Австралия","AZ":"Азербайджан",
+    "BA":"Босния и Герцеговина","BD":"Бангладеш","BE":"Бельгия","BG":"Болгария","BH":"Бахрейн",
+    "BR":"Бразилия","BY":"Беларусь","CA":"Канада","CH":"Швейцария","CL":"Чили",
+    "CN":"Китай","CO":"Колумбия","CR":"Коста-Рика","CU":"Куба","CY":"Кипр",
+    "CZ":"Чехия","DE":"Германия","DK":"Дания","DZ":"Алжир","EC":"Эквадор",
+    "EE":"Эстония","EG":"Египет","ES":"Испания","FI":"Финляндия","FR":"Франция",
+    "GB":"Великобритания","GE":"Грузия","GH":"Гана","GR":"Греция","HK":"Гонконг",
+    "HR":"Хорватия","HU":"Венгрия","ID":"Индонезия","IE":"Ирландия","IL":"Израиль",
+    "IN":"Индия","IQ":"Ирак","IR":"Иран","IS":"Исландия","IT":"Италия",
+    "JO":"Иордания","JP":"Япония","KE":"Кения","KG":"Кыргызстан","KH":"Камбоджа",
+    "KR":"Южная Корея","KW":"Кувейт","KZ":"Казахстан","LB":"Ливан","LK":"Шри-Ланка",
+    "LT":"Литва","LU":"Люксембург","LV":"Латвия","MA":"Марокко","MD":"Молдова",
+    "ME":"Черногория","MK":"Северная Македония","MM":"Мьянма","MN":"Монголия","MT":"Мальта",
+    "MX":"Мексика","MY":"Малайзия","NG":"Нигерия","NL":"Нидерланды","NO":"Норвегия",
+    "NP":"Непал","NZ":"Новая Зеландия","OM":"Оман","PA":"Панама","PE":"Перу",
+    "PH":"Филиппины","PK":"Пакистан","PL":"Польша","PT":"Португалия","QA":"Катар",
+    "RO":"Румыния","RS":"Сербия","RU":"Россия","SA":"Саудовская Аравия","SE":"Швеция",
+    "SG":"Сингапур","SI":"Словения","SK":"Словакия","TH":"Таиланд","TJ":"Таджикистан",
+    "TM":"Туркменистан","TN":"Тунис","TR":"Турция","TW":"Тайвань","UA":"Украина",
+    "US":"США","UY":"Уругвай","UZ":"Узбекистан","VE":"Венесуэла","VN":"Вьетнам",
+    "ZA":"ЮАР",
+  };
+
+  const countryName = code => COUNTRIES[code] || code;
+
+  const weatherIcon = desc => {
+    if (!desc) return "🌡";
+    const d = desc.toLowerCase();
+    if (d.includes("гроз")) return "⛈";
+    if (d.includes("дожд") || d.includes("морос")) return "🌧";
+    if (d.includes("снег") || d.includes("метел")) return "❄️";
+    if (d.includes("туман") || d.includes("дымк")) return "🌫";
+    if (d.includes("ясн") || d.includes("солн")) return "☀️";
+    if (d.includes("облачн")) return "☁️";
+    return "🌤";
+  };
+
+  document.querySelectorAll(".search input").forEach(el => {
+    el.addEventListener("keydown", e => { if (e.key === "Enter") search(); });
+  });
+
+  async function search() {
+    const city = document.getElementById("cityInput").value.trim();
+    const amount = parseFloat(document.getElementById("amountInput").value) || 1000;
+    if (!city) return;
+
+    const errEl = document.getElementById("error");
+    const resultsEl = document.getElementById("results");
+    const btn = document.getElementById("searchBtn");
+
+    errEl.style.display = "none";
+    resultsEl.classList.remove("visible");
+    document.querySelectorAll(".card").forEach(c => c.classList.remove("show"));
+    btn.disabled = true;
+    btn.innerHTML = '<span style="animation:pulse 1s infinite">···</span>';
+
+    try {
+      const res = await fetch(`/api/v1/city-info?city=${encodeURIComponent(city)}&amount=${amount}`);
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        errEl.textContent = err.detail || "Город не найден. Проверьте название и попробуйте ещё раз.";
+        errEl.style.display = "block";
+        return;
+      }
+
+      const d = await res.json();
+
+      document.getElementById("rCity").textContent = d.city;
+      document.getElementById("rLabel").textContent = countryName(d.country_code);
+      document.getElementById("rCountry").textContent = countryName(d.country_code);
+      document.getElementById("rCoords").textContent = `${d.lat.toFixed(2)}°, ${d.lon.toFixed(2)}°`;
+
+      if (d.weather) {
+        document.getElementById("rIcon").textContent = weatherIcon(d.weather.description);
+        document.getElementById("rTemp").textContent = d.weather.temp.toFixed(1);
+        document.getElementById("rDesc").textContent = d.weather.description;
+        document.getElementById("rHum").textContent = d.weather.humidity + "%";
+        document.getElementById("rWind").textContent = d.weather.wind_speed + " м/с";
+        document.getElementById("rFeels").textContent = d.weather.feels_like.toFixed(1) + "°C";
+      }
+
+      if (d.currency) {
+        const c = d.currency;
+        if (c.from_currency === c.to_currency) {
+          document.getElementById("rCur").innerHTML =
+            '<div class="card-sub" style="margin-top:6px">Местная валюта — рубль. Конвертация не требуется.</div>';
+        } else {
+          document.getElementById("rCur").innerHTML =
+            `<div><span class="big-num">${fmt(c.result)}</span><span class="unit">${c.to_currency}</span></div>` +
+            `<div class="card-sub">${fmt(c.amount, 0)} ₽ -> ${c.to_currency}</div>` +
+            `<div class="rate-badge">1 RUB = ${c.rate} ${c.to_currency}</div>`;
+        }
+      }
+
+      resultsEl.classList.add("visible");
+      document.querySelectorAll(".card").forEach((c, i) => {
+        setTimeout(() => c.classList.add("show"), 80 + i * 100);
+      });
+
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Узнать";
+    }
+  }
+</script>
+{% endblock %}
