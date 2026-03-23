@@ -5,16 +5,9 @@ from typing import Any, Awaitable, Callable, Dict
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Message, CallbackQuery
 
-logger = logging.getLogger("bot.updates")
+from app.bot.utils.config import RESET, BOLD, DIM, CYAN, MAGENTA, YELLOW, GREEN, BLUE
 
-RESET = "\033[0m"
-BOLD = "\033[1m"
-DIM = "\033[2m"
-CYAN = "\033[38;5;117m"
-MAGENTA = "\033[38;5;176m"
-YELLOW = "\033[38;5;221m"
-GREEN = "\033[38;5;114m"
-BLUE = "\033[38;5;75m"
+logger = logging.getLogger("bot.updates")
 
 
 def _user_tag(user) -> str:

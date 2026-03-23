@@ -7,7 +7,7 @@ from app.services.http_client import get_client
 
 logger = logging.getLogger("bot.geo")
 
-GEO_URL = "http://api.openweathermap.org/geo/1.0/direct"
+GEO_URL = "https://api.openweathermap.org/geo/1.0/direct"
 
 
 async def geocode(city: str) -> dict | None:

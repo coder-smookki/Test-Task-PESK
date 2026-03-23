@@ -25,17 +25,13 @@ def create_bot() -> tuple[Bot, Dispatcher]:
     return bot, dp
 
 
-bot, dp = create_bot()
-
-
-
 def register_handlers(dispatcher: Dispatcher) -> None:
     routers = [
         ("start", start_router),
         ("help", help_router),
         ("search", search_router),
         ("city_query", city_query_router),
-        ("ref>resh", refresh_router),
+        ("refresh", refresh_router),
     ]
     for name, router in routers:
         dispatcher.include_router(router)
@@ -54,6 +50,8 @@ def register_middleware(dispatcher: Dispatcher) -> None:
 
 async def main() -> None:
     setup_logger()
+
+    bot, dp = create_bot()
 
     logger.info(f"{DIM}--- Регистрация мидлварей ---{RESET}")
     register_middleware(dp)

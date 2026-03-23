@@ -30,7 +30,7 @@ async def _animate_loading(wait: Message, stop: asyncio.Event) -> None:
 
 
 @router.message(CityInputFilter())
-async def handle_city_query(message: Message, city: str, amount: int) -> None:
+async def handle_city_query(message: Message, city: str, amount: float) -> None:
     wait = await message.answer(LOADING_FRAMES[0])
 
     stop = asyncio.Event()

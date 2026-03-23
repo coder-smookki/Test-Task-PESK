@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Query, Depends, HTTPException
+from fastapi import APIRouter, Query, HTTPException
 
 from app.api.schemas import CityInfoResponse
-from app.api.dependencies import get_city_info_dep, CityInfoCallable
+from app.services.city_info import get_city_info
 
 router = APIRouter(prefix="/api/v1", tags=["city"])
 
@@ -28,11 +28,10 @@ async def health():
     responses={404: {"description": "Город не найден или геокодирование не вернуло результатов"}},
 )
 async def city_info(
-    city: str = Query(..., description="Название города на любом языке", examples=["Берлин"]),
-    amount: float = Query(1000, description="Сумма в рублях для конвертации в местную валюту", examples=[5000]),
-    service: CityInfoCallable = Depends(get_city_info_dep),
+    city: str = Query(..., min_length=1, max_length=100, description="Название города на любом языке", examples=["Берлин"]),
+    amount: float = Query(1000, gt=0, description="Сумма в рублях для конвертации в местную валюту", examples=[5000]),
 ):
-    result = await service(city, amount)
+    result = await get_city_info(city.strip(), amount)
     if result is None:
         raise HTTPException(status_code=404, detail="Город не найден")
     return result

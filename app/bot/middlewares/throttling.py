@@ -9,6 +9,8 @@ from app.bot.utils.config import RESET, BOLD, DIM, RED, THROTTLE_RATE
 
 logger = logging.getLogger("bot.throttle")
 
+_MAX_CACHE_SIZE = 10_000
+
 
 class ThrottlingMiddleware(BaseMiddleware):
     def __init__(self, rate: float = THROTTLE_RATE) -> None:
@@ -36,4 +38,10 @@ class ThrottlingMiddleware(BaseMiddleware):
             return None
 
         self._cache[user.id] = now
+
+        if len(self._cache) > _MAX_CACHE_SIZE:
+            oldest = sorted(self._cache, key=self._cache.__getitem__)
+            for k in oldest[: len(self._cache) // 4]:
+                del self._cache[k]
+
         return await handler(event, data)

@@ -8,7 +8,10 @@ class CityInputFilter(BaseFilter):
     async def __call__(self, message: Message) -> bool | dict:
         if not message.text:
             return False
-        match = re.match(r"^(.+?),\s*(\d+)$", message.text.strip())
+        match = re.match(r"^(.+?),\s*(\d+(?:[.,]\d+)?)$", message.text.strip())
         if not match:
             return False
-        return {"city": match.group(1).strip(), "amount": int(match.group(2))}
+        amount = float(match.group(2).replace(",", "."))
+        if amount <= 0:
+            return False
+        return {"city": match.group(1).strip(), "amount": amount}

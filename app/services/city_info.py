@@ -16,7 +16,7 @@ async def get_city_info(
     amount: float,
     force: bool = False,
 ) -> dict | None:
-    key = f"{city.lower()}:{amount}"
+    key = f"{city.strip().lower()}:{float(amount)}"
 
     if not force:
         cached = _cache.get(key)
