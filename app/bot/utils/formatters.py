@@ -28,7 +28,7 @@ def format_result(data: dict) -> str:
         else:
             lines.append("💱 <b>Конвертация</b>")
             lines.append(
-                f"├ {c['amount']:.0f} {c['from_currency']}  →  " f"<b>{c['result']:.2f} {c['to_currency']}</b>"
+                f"├ {c['amount']:.0f} {c['from_currency']}  ->  " f"<b>{c['result']:.2f} {c['to_currency']}</b>"
             )
             lines.append(f"└  1 {c['from_currency']} = " f"{c['rate']:.4f} {c['to_currency']}")
     else:

@@ -28,6 +28,6 @@ dist.mkdir()
 static_dst = dist / "static"
 shutil.copytree(ROOT / "app" / "static", static_dst)
 
-print(f"Built → {dist}/")
-print(f"  static_base = {static_base!r}")
-print(f"  API_BASE    = {API_BASE!r}")
+print(f"Билд -> {dist}/")
+print(f"  Статика = {static_base!r}")
+print(f"  Апишка  = {API_BASE!r}")
