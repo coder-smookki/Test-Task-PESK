@@ -14,4 +14,3 @@ def get_photo(name: str) -> str | FSInputFile:
 def save_photo_id(name: str, msg: Message) -> None:
     if msg.photo:
         _cache[name] = msg.photo[-1].file_id
- 

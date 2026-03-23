@@ -1,9 +1,9 @@
 import asyncio
 import logging
 
+from app.services.currency import convert_currency
 from app.services.geo import geocode
 from app.services.weather import get_weather
-from app.services.currency import convert_currency
 from app.utils.cache import TTLCache
 
 logger = logging.getLogger("bot.city_info")

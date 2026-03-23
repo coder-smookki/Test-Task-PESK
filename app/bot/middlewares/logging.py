@@ -1,11 +1,12 @@
-import time
 import logging
-from typing import Any, Awaitable, Callable, Dict
+import time
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject, Message, CallbackQuery
+from aiogram.types import CallbackQuery, Message, TelegramObject
 
-from app.bot.utils.config import RESET, BOLD, DIM, CYAN, MAGENTA, YELLOW, GREEN, BLUE
+from app.bot.utils.config import BLUE, BOLD, CYAN, DIM, GREEN, MAGENTA, RESET, YELLOW
 
 logger = logging.getLogger("bot.updates")
 
@@ -15,7 +16,7 @@ def _user_tag(user) -> str:
     return f"{BOLD}{name}{RESET} {DIM}[{user.id}]{RESET}"
 
 
-def _describe(event: TelegramObject, data: Dict[str, Any]) -> str:
+def _describe(event: TelegramObject, data: dict[str, Any]) -> str:
     if isinstance(event, Message):
         if event.text and event.text.startswith("/"):
             cmd = event.text.split()[0]
@@ -34,9 +35,9 @@ def _describe(event: TelegramObject, data: Dict[str, Any]) -> str:
 class LoggingMiddleware(BaseMiddleware):
     async def __call__(
         self,
-        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        handler: Callable[[TelegramObject, dict[str, Any]], Awaitable[Any]],
         event: TelegramObject,
-        data: Dict[str, Any],
+        data: dict[str, Any],
     ) -> Any:
         user = data.get("event_from_user")
         if not user:

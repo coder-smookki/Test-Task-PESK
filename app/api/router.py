@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 
 from app.api.schemas import CityInfoResponse
 from app.services.city_info import get_city_info
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/api/v1", tags=["city"])
 @router.get(
     "/health",
     summary="Проверка работоспособности",
-    description="Возвращает `{\"status\": \"ok\"}` если сервис запущен.",
+    description='Возвращает `{"status": "ok"}` если сервис запущен.',
     responses={200: {"content": {"application/json": {"example": {"status": "ok"}}}}},
 )
 async def health():
@@ -28,7 +28,9 @@ async def health():
     responses={404: {"description": "Город не найден или геокодирование не вернуло результатов"}},
 )
 async def city_info(
-    city: str = Query(..., min_length=1, max_length=100, description="Название города на любом языке", examples=["Берлин"]),
+    city: str = Query(
+        ..., min_length=1, max_length=100, description="Название города на любом языке", examples=["Берлин"]
+    ),
     amount: float = Query(1000, gt=0, description="Сумма в рублях для конвертации в местную валюту", examples=[5000]),
 ):
     result = await get_city_info(city.strip(), amount)

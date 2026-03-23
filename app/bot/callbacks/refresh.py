@@ -2,8 +2,8 @@ from aiogram import Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import CallbackQuery, InputMediaPhoto
 
-from app.bot.keyboards.result import result_keyboard, RefreshCallback
-from app.bot.utils.config import REFRESH_DONE, REFRESH_NO_CHANGE, REFRESH_FAIL
+from app.bot.keyboards.result import RefreshCallback, result_keyboard
+from app.bot.utils.config import REFRESH_DONE, REFRESH_FAIL, REFRESH_NO_CHANGE
 from app.bot.utils.formatters import format_result
 from app.bot.utils.photo_cache import get_photo, save_photo_id
 from app.services.city_info import get_city_info

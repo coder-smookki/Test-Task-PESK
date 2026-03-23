@@ -1,6 +1,6 @@
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, InputMediaPhoto
+from aiogram.types import CallbackQuery, InputMediaPhoto, Message
 
 from app.bot.keyboards.search import search_keyboard
 from app.bot.utils.config import SEARCH_TEXT

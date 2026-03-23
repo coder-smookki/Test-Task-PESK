@@ -5,13 +5,13 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from app.bot.handlers import start_router, help_router, search_router, city_query_router
 from app.bot.callbacks import refresh_router
-from app.bot.middlewares import ThrottlingMiddleware, LoggingMiddleware
+from app.bot.handlers import city_query_router, help_router, search_router, start_router
+from app.bot.middlewares import LoggingMiddleware, ThrottlingMiddleware
+from app.bot.utils.config import BOLD, CYAN, DIM, GREEN, MAGENTA, RESET
 from app.bot.utils.logging import setup_logger
-from app.bot.utils.config import GREEN, RESET, BOLD, MAGENTA, DIM, CYAN
-from app.services.http_client import close_client
 from app.config import settings
+from app.services.http_client import close_client
 
 logger = logging.getLogger("bot")
 

@@ -7,10 +7,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.bot.utils.logging import setup_logger
-from app.bot.utils.config import BLUE, BOLD, GREEN, RESET
 from app.api.router import router as api_router
 from app.api.web import router as web_router
+from app.bot.utils.config import BLUE, BOLD, GREEN, RESET
+from app.bot.utils.logging import setup_logger
 from app.services.http_client import close_client
 
 logger = logging.getLogger("api")

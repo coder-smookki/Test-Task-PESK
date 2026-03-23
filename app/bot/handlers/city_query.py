@@ -5,7 +5,7 @@ from aiogram.types import Message
 
 from app.bot.filters.city_input import CityInputFilter
 from app.bot.keyboards.result import result_keyboard
-from app.bot.utils.config import LOADING_FRAMES, LOADING_DELAY, ERROR_CITY_NOT_FOUND
+from app.bot.utils.config import ERROR_CITY_NOT_FOUND, LOADING_DELAY, LOADING_FRAMES
 from app.bot.utils.formatters import format_result
 from app.bot.utils.photo_cache import get_photo, save_photo_id
 from app.services.city_info import get_city_info
@@ -25,7 +25,7 @@ async def _animate_loading(wait: Message, stop: asyncio.Event) -> None:
         try:
             await asyncio.wait_for(stop.wait(), timeout=LOADING_DELAY)
             return
-        except asyncio.TimeoutError:
+        except TimeoutError:
             pass
 
 

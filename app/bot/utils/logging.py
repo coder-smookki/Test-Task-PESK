@@ -1,10 +1,8 @@
 import logging
 import sys
 
+from app.bot.utils.config import BOLD, CYAN, DIM, GREEN, GREY, RED, RESET, YELLOW
 from app.config import settings
-from app.bot.utils.config import DIM, RESET, YELLOW, GREEN, BOLD, \
-    RED, GREY, CYAN
-
 
 LEVEL_STYLES = {
     logging.DEBUG: f"{DIM}DEBUG{RESET}",
