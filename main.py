@@ -4,34 +4,52 @@ import logging
 from aiogram import Dispatcher
 
 from app.bot.create_bot import bot, dp
+from app.bot.handlers import start_router, help_router, search_router, city_query_router
+from app.bot.callbacks import refresh_router
+from app.bot.middlewares import ThrottlingMiddleware, LoggingMiddleware
+from app.bot.utils.logging import setup_logger
+from app.bot.utils.config import GREEN, RESET, BOLD, MAGENTA, DIM, CYAN
 
-from app.config import settings
+logger = logging.getLogger("bot")
 
 
 def register_handlers(dp: Dispatcher) -> None:
-    from app.bot.handlers import start_router
-    from app.bot.handlers import help_router
-    from app.bot.handlers import search_router
+    routers = [
+        ("start", start_router),
+        ("help", help_router),
+        ("search", search_router),
+        ("city_query", city_query_router),
+        ("refresh", refresh_router),
+    ]
+    for name, router in routers:
+        dp.include_router(router)
+        logger.info(f"  {GREEN}+{RESET} роутер {BOLD}{name}{RESET}")
 
-    dp.include_router(start_router)
-    dp.include_router(help_router)
-    dp.include_router(search_router)
 
 def register_middleware(dp: Dispatcher) -> None:
-    from app.bot.middlewares import ThrottlingMiddleware
-
-    dp.update.middleware(ThrottlingMiddleware())
+    middlewares = [
+        ("ThrottlingMiddleware", ThrottlingMiddleware()),
+        ("LoggingMiddleware", LoggingMiddleware()),
+    ]
+    for name, mw in middlewares:
+        dp.update.middleware(mw)
+        logger.info(f"  {MAGENTA}+{RESET} мидлварь {BOLD}{name}{RESET}")
 
 
 async def main() -> None:
-    logging.basicConfig(
-        level=logging.DEBUG if settings.DEBUG else logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    )
+    setup_logger()
 
+    logger.info(f"{DIM}--- Регистрация мидлварей ---{RESET}")
     register_middleware(dp)
+
+    logger.info(f"{DIM}--- Регистрация хендлеров ---{RESET}")
     register_handlers(dp)
-    logging.info("Бот запущен https://t.me/test_smokkkiii_bot")
+
+    me = await bot.me()
+    logger.info(
+        f"{CYAN}{BOLD}@{me.username}{RESET} "
+        f"{GREEN}стартовал!{RESET}"
+    )
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

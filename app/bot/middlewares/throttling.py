@@ -1,10 +1,13 @@
 import time
+import logging
 from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 
-THROTTLE_RATE = 1.0
+from app.bot.utils.config import RESET, BOLD, DIM, RED, THROTTLE_RATE
+
+logger = logging.getLogger("bot.throttle")
 
 
 class ThrottlingMiddleware(BaseMiddleware):
@@ -26,6 +29,10 @@ class ThrottlingMiddleware(BaseMiddleware):
         last = self._cache.get(user.id, 0.0)
 
         if now - last < self._rate:
+            logger.warning(
+                f"{RED}throttled{RESET} {BOLD}{user.full_name}{RESET} "
+                f"{DIM}[{user.id}]{RESET}"
+            )
             return None
 
         self._cache[user.id] = now
